@@ -8,19 +8,7 @@ const PIN_KEY = 'user_pin';
 
 export const StorageService = {
 
-  async hasPin() {
-    const pin = await SecureStore.getItemAsync(PIN_KEY);
-    return !!pin;
-  },
 
-  async setPin(pin) {
-    await SecureStore.setItemAsync(PIN_KEY, pin);
-  },
-
-  async verifyPin(pin) {
-    const storedPin = await SecureStore.getItemAsync(PIN_KEY);
-    return storedPin === pin;
-  },
 
 
   async getItems() {

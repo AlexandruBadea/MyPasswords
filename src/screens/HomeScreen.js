@@ -3,26 +3,27 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, Clipboard, A
 import { useFocusEffect } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { StorageService } from '../services/StorageService';
-import PinModal from '../components/PinModal';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '../constants/Theme';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 export default function HomeScreen({ navigation }) {
     const [items, setItems] = useState([]);
-    const [pinModalVisible, setPinModalVisible] = useState(false);
-    const [isSettingPin, setIsSettingPin] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
+
+    // Check biometric availability on mount
+    useEffect(() => {
+        (async () => {
+            const compatible = await LocalAuthentication.hasHardwareAsync();
+            if (!compatible) {
+                Alert.alert("Notice", "This device does not support biometric authentication.");
+            }
+        })();
+    }, []);
 
     const loadData = async () => {
         const data = await StorageService.getItems();
         setItems(data);
-
-        const hasPin = await StorageService.hasPin();
-        if (!hasPin) {
-            setIsSettingPin(true);
-            setPinModalVisible(true);
-        }
     };
 
     useFocusEffect(
@@ -31,42 +32,70 @@ export default function HomeScreen({ navigation }) {
         }, [])
     );
 
-    const handleItemPress = (item) => {
-        setSelectedItem(item);
-        setIsSettingPin(false);
-        setPinModalVisible(true);
-    };
+    const handleItemPress = async (item) => {
+        try {
+            const hasAuth = await LocalAuthentication.hasHardwareAsync();
+            const isEnrolled = await LocalAuthentication.isEnrolledAsync();
 
-    const handlePinSuccess = async () => {
-        setPinModalVisible(false);
-        if (isSettingPin) {
-            Alert.alert("Success", "PIN set successfully!");
-            setIsSettingPin(false);
-        } else if (selectedItem) {
-            try {
-                const password = await StorageService.getPassword(selectedItem.id);
-                Alert.alert(
-                    selectedItem.serviceName,
-                    `Username: ${selectedItem.username}\nPassword: ${password}`,
-                    [
-                        { text: "Copy Password", onPress: () => Clipboard.setString(password) },
-                        { text: "OK" }
-                    ]
-                );
-            } catch (e) {
-                Alert.alert("Error", "Could not retrieve password");
+            if (!hasAuth || !isEnrolled) {
+                Alert.alert("Security", "Please enable device security (PIN/Biometrics) to use this app.");
+                return;
             }
-            setSelectedItem(null);
+
+            const result = await LocalAuthentication.authenticateAsync({
+                promptMessage: 'Authenticate to view password',
+                fallbackLabel: 'Use Passcode',
+                cancelLabel: 'Cancel',
+            });
+
+            if (result.success) {
+                revealPassword(item);
+            } else {
+                // Authentication failed or cancelled - do nothing
+            }
+        } catch (e) {
+            Alert.alert("Error", "Authentication failed");
         }
     };
 
-    const handlePinClose = () => {
-        if (isSettingPin) {
-            Alert.alert("Requirement", "You must set a PIN to use this app.");
-            return;
+    const handleDelete = (item) => {
+        Alert.alert(
+            "Delete Password",
+            `Are you sure you want to delete the password for ${item.serviceName}?`,
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await StorageService.deleteItem(item.id);
+                            loadData();
+                            Alert.alert("Success", "Password deleted");
+                        } catch (e) {
+                            Alert.alert("Error", "Could not delete item");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+    const revealPassword = async (item) => {
+        try {
+            const password = await StorageService.getPassword(item.id);
+            Alert.alert(
+                item.serviceName,
+                `Username: ${item.username}\nPassword: ${password}`,
+                [
+                    { text: "Copy Password", onPress: () => Clipboard.setString(password) },
+                    { text: "Delete", style: "destructive", onPress: () => handleDelete(item) },
+                    { text: "OK", style: "cancel" }
+                ]
+            );
+        } catch (e) {
+            Alert.alert("Error", "Could not retrieve password");
         }
-        setPinModalVisible(false);
-        setSelectedItem(null);
     };
 
     const renderItem = ({ item, index }) => {
@@ -103,13 +132,6 @@ export default function HomeScreen({ navigation }) {
                     <Ionicons name="add" size={32} color="white" />
                 </LinearGradient>
             </TouchableOpacity>
-
-            <PinModal
-                visible={pinModalVisible}
-                onClose={handlePinClose}
-                onSuccess={handlePinSuccess}
-                isSettingPin={isSettingPin}
-            />
         </LinearGradient>
     );
 }
