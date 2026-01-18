@@ -7,7 +7,7 @@ const LIST_KEY = 'passwords_list';
 const PIN_KEY = 'user_pin';
 
 export const StorageService = {
-  // PIN Management
+
   async hasPin() {
     const pin = await SecureStore.getItemAsync(PIN_KEY);
     return !!pin;
@@ -22,7 +22,7 @@ export const StorageService = {
     return storedPin === pin;
   },
 
-  // Password Management
+
   async getItems() {
     try {
       const jsonValue = await AsyncStorage.getItem(LIST_KEY);
@@ -37,17 +37,17 @@ export const StorageService = {
     try {
       const id = uuidv4();
       const newItem = { id, serviceName, username };
-      
-      // Get existing items
+
+
       const existingItems = await this.getItems();
       const newItems = [...existingItems, newItem];
-      
-      // Save metadata to AsyncStorage
+
+
       await AsyncStorage.setItem(LIST_KEY, JSON.stringify(newItems));
-      
-      // Save password to SecureStore
+
+
       await SecureStore.setItemAsync(`password_${id}`, password);
-      
+
       return newItem;
     } catch (e) {
       console.error("Error adding item", e);
@@ -66,13 +66,13 @@ export const StorageService = {
 
   async deleteItem(id) {
     try {
-        const existingItems = await this.getItems();
-        const newItems = existingItems.filter(item => item.id !== id);
-        await AsyncStorage.setItem(LIST_KEY, JSON.stringify(newItems));
-        await SecureStore.deleteItemAsync(`password_${id}`);
+      const existingItems = await this.getItems();
+      const newItems = existingItems.filter(item => item.id !== id);
+      await AsyncStorage.setItem(LIST_KEY, JSON.stringify(newItems));
+      await SecureStore.deleteItemAsync(`password_${id}`);
     } catch (e) {
-        console.error("Error deleting item", e);
-        throw e;
+      console.error("Error deleting item", e);
+      throw e;
     }
   }
 };

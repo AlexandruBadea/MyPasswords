@@ -1,6 +1,37 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, Animated } from 'react-native';
 import { StorageService } from '../services/StorageService';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { Theme } from '../constants/Theme';
+
+const AnimatedInput = ({ delay, children }) => {
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const translateY = useRef(new Animated.Value(20)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 500,
+                delay: delay,
+                useNativeDriver: true,
+            }),
+            Animated.timing(translateY, {
+                toValue: 0,
+                duration: 500,
+                delay: delay,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, [fadeAnim, translateY, delay]);
+
+    return (
+        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY }] }}>
+            {children}
+        </Animated.View>
+    )
+}
 
 export default function AddPasswordScreen({ navigation }) {
     const [serviceName, setServiceName] = useState('');
@@ -17,9 +48,11 @@ export default function AddPasswordScreen({ navigation }) {
         setLoading(true);
         try {
             await StorageService.addItem(serviceName, username, password);
-            Alert.alert("Success", "Password saved successfully", [
-                { text: "OK", onPress: () => navigation.goBack() }
-            ]);
+            setTimeout(() => {
+                Alert.alert("Success", "Password secured successfully", [
+                    { text: "OK", onPress: () => navigation.goBack() }
+                ]);
+            }, 500);
         } catch (e) {
             Alert.alert("Error", "Failed to save password");
         } finally {
@@ -30,44 +63,78 @@ export default function AddPasswordScreen({ navigation }) {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.container}
+            style={{ flex: 1 }}
         >
-            <ScrollView contentContainerStyle={styles.scroll}>
-                <Text style={styles.label}>Service Name</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="e.g. Google, Facebook"
-                    value={serviceName}
-                    onChangeText={setServiceName}
-                    autoFocus
-                />
+            <LinearGradient colors={Theme.colors.backgroundGradient} style={styles.container}>
+                <ScrollView contentContainerStyle={styles.scroll}>
 
-                <Text style={styles.label}>Username / Email</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="e.g. user@example.com"
-                    value={username}
-                    onChangeText={setUsername}
-                    autoCapitalize="none"
-                />
+                    <AnimatedInput delay={100}>
+                        <Text style={styles.label}>Service Name</Text>
+                        <View style={styles.inputContainer}>
+                            <Ionicons name="globe-outline" size={20} color={Theme.colors.accentCyan} style={styles.icon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="e.g. Google, Facebook"
+                                placeholderTextColor={Theme.colors.textSecondary}
+                                value={serviceName}
+                                onChangeText={setServiceName}
+                                autoFocus
+                                selectionColor={Theme.colors.accentCyan}
+                            />
+                        </View>
+                    </AnimatedInput>
 
-                <Text style={styles.label}>Password</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Required"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                />
+                    <AnimatedInput delay={200}>
+                        <Text style={styles.label}>Username / Email</Text>
+                        <View style={styles.inputContainer}>
+                            <Ionicons name="person-outline" size={20} color={Theme.colors.accentCyan} style={styles.icon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="e.g. user@example.com"
+                                placeholderTextColor={Theme.colors.textSecondary}
+                                value={username}
+                                onChangeText={setUsername}
+                                autoCapitalize="none"
+                                selectionColor={Theme.colors.accentCyan}
+                            />
+                        </View>
+                    </AnimatedInput>
 
-                <TouchableOpacity
-                    style={[styles.button, loading && styles.disabled]}
-                    onPress={handleSave}
-                    disabled={loading}
-                >
-                    <Text style={styles.buttonText}>{loading ? "Saving..." : "Save Password"}</Text>
-                </TouchableOpacity>
-            </ScrollView>
+                    <AnimatedInput delay={300}>
+                        <Text style={styles.label}>Password</Text>
+                        <View style={styles.inputContainer}>
+                            <Ionicons name="lock-closed-outline" size={20} color={Theme.colors.accentCyan} style={styles.icon} />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Required"
+                                placeholderTextColor={Theme.colors.textSecondary}
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry
+                                selectionColor={Theme.colors.accentCyan}
+                            />
+                        </View>
+                    </AnimatedInput>
+
+                    <AnimatedInput delay={400}>
+                        <TouchableOpacity
+                            activeOpacity={0.8}
+                            onPress={handleSave}
+                            disabled={loading}
+                        >
+                            <LinearGradient
+                                colors={[Theme.colors.accentCyan, Theme.colors.accentPink]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                style={[styles.button, loading && styles.disabled]}
+                            >
+                                <Text style={styles.buttonText}>{loading ? "Encrypting..." : "Save Password"}</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </AnimatedInput>
+
+                </ScrollView>
+            </LinearGradient>
         </KeyboardAvoidingView>
     );
 }
@@ -75,35 +142,49 @@ export default function AddPasswordScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212',
     },
     scroll: {
         padding: 20,
+        paddingTop: 40,
     },
     label: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '600',
         marginBottom: 8,
-        color: '#B3B3B3',
+        color: Theme.colors.accentCyan,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginLeft: 4,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: Theme.borderRadius.m,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        marginBottom: 20,
+        paddingHorizontal: 15,
+    },
+    icon: {
+        marginRight: 10,
     },
     input: {
-        height: 50,
-        borderColor: '#333',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 15,
-        marginBottom: 20,
+        flex: 1,
+        height: 55,
         fontSize: 16,
-        color: '#FFFFFF',
-        backgroundColor: '#1E1E1E',
+        color: Theme.colors.textPrimary,
     },
     button: {
-        backgroundColor: '#4A90E2',
-        height: 50,
-        borderRadius: 8,
+        height: 55,
+        borderRadius: Theme.borderRadius.m,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 20,
+        marginTop: 30,
+        shadowColor: Theme.colors.accentPink,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
         elevation: 4,
     },
     disabled: {
@@ -113,5 +194,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 18,
         fontWeight: 'bold',
+        textTransform: 'uppercase',
+        letterSpacing: 1.5,
     },
 });

@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, Clipboard } from 'react-native';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, Clipboard, Animated } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { StorageService } from '../services/StorageService';
 import PinModal from '../components/PinModal';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { Theme } from '../constants/Theme';
 
 export default function HomeScreen({ navigation }) {
     const [items, setItems] = useState([]);
@@ -66,22 +69,17 @@ export default function HomeScreen({ navigation }) {
         setSelectedItem(null);
     };
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.item} onPress={() => handleItemPress(item)}>
-            <View>
-                <Text style={styles.serviceName}>{item.serviceName}</Text>
-                <Text style={styles.username}>{item.username}</Text>
-            </View>
-            <Text style={styles.arrow}>{'>'}</Text>
-        </TouchableOpacity>
-    );
+    const renderItem = ({ item, index }) => {
+        return <FadeInView index={index} item={item} onPress={handleItemPress} />
+    };
 
     return (
-        <View style={styles.container}>
-            <StatusBar style="auto" />
+        <LinearGradient colors={Theme.colors.backgroundGradient} style={styles.container}>
+            <StatusBar style="light" />
             {items.length === 0 ? (
                 <View style={styles.emptyState}>
-                    <Text style={styles.emptyText}>No passwords saved yet.</Text>
+                    <Ionicons name="shield-checkmark-outline" size={80} color={Theme.colors.accentCyan} style={{ opacity: 0.5 }} />
+                    <Text style={styles.emptyText}>No passwords secured yet.</Text>
                 </View>
             ) : (
                 <FlatList
@@ -96,7 +94,14 @@ export default function HomeScreen({ navigation }) {
                 style={styles.fab}
                 onPress={() => navigation.navigate('AddPassword')}
             >
-                <Text style={styles.fabText}>+</Text>
+                <LinearGradient
+                    colors={[Theme.colors.accentCyan, Theme.colors.accentPink]}
+                    style={styles.fabGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                >
+                    <Ionicons name="add" size={32} color="white" />
+                </LinearGradient>
             </TouchableOpacity>
 
             <PinModal
@@ -105,47 +110,101 @@ export default function HomeScreen({ navigation }) {
                 onSuccess={handlePinSuccess}
                 isSettingPin={isSettingPin}
             />
-        </View>
+        </LinearGradient>
+    );
+}
+
+
+const FadeInView = ({ index, item, onPress }) => {
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const translateY = useRef(new Animated.Value(20)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 500,
+                delay: index * 100,
+                useNativeDriver: true,
+            }),
+            Animated.timing(translateY, {
+                toValue: 0,
+                duration: 500,
+                delay: index * 100,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, [fadeAnim, translateY, index]);
+
+    return (
+        <Animated.View
+            style={{
+                opacity: fadeAnim,
+                transform: [{ translateY: translateY }]
+            }}
+        >
+            <TouchableOpacity onPress={() => onPress(item)}>
+                <LinearGradient
+                    colors={Theme.colors.cardGradient}
+                    style={styles.item}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                >
+                    <View style={styles.iconContainer}>
+                        <Ionicons name="key-outline" size={24} color={Theme.colors.accentCyan} />
+                    </View>
+                    <View style={styles.textContainer}>
+                        <Text style={styles.serviceName}>{item.serviceName}</Text>
+                        <Text style={styles.username}>{item.username}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={24} color={Theme.colors.accentPink} />
+                </LinearGradient>
+            </TouchableOpacity>
+        </Animated.View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212',
     },
     list: {
         padding: 20,
+        paddingBottom: 100,
     },
     item: {
-        backgroundColor: '#1E1E1E',
         padding: 20,
-        borderRadius: 12,
+        borderRadius: Theme.borderRadius.m,
         marginBottom: 15,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-        elevation: 3,
         borderWidth: 1,
-        borderColor: '#333',
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0, 243, 255, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 15,
+    },
+    textContainer: {
+        flex: 1,
     },
     serviceName: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#FFFFFF',
+        color: Theme.colors.textPrimary,
+        textShadowColor: 'rgba(0, 243, 255, 0.5)',
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 10,
     },
     username: {
         fontSize: 14,
-        color: '#B3B3B3',
-        marginTop: 5,
-    },
-    arrow: {
-        fontSize: 20,
-        color: '#666',
+        color: Theme.colors.textSecondary,
+        marginTop: 2,
     },
     emptyState: {
         flex: 1,
@@ -154,27 +213,27 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 16,
-        color: '#666',
+        color: Theme.colors.textSecondary,
+        marginTop: 20,
+        fontStyle: 'italic',
     },
     fab: {
         position: 'absolute',
         right: 20,
         bottom: 30,
-        backgroundColor: '#4A90E2',
         width: 60,
         height: 60,
         borderRadius: 30,
+        elevation: 8,
+        shadowColor: Theme.colors.accentCyan,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
+    },
+    fabGradient: {
+        flex: 1,
+        borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-    fabText: {
-        color: 'white',
-        fontSize: 32,
-        marginTop: -2,
-    },
+    }
 });
