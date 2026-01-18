@@ -12,6 +12,18 @@ MyPasswords este o aplicație mobilă modernă și sigură, construită cu **Rea
 
 ---
 
+## 📸 Galerie Foto
+
+| Ecran Principal | Adăugare Parolă |
+|:---:|:---:|
+| <img src="./images/homepage.jpeg" width="300" /> | <img src="./images/save_password_screen.jpeg" width="300" /> |
+
+| Detalii & Acțiuni | Autentificare |
+|:---:|:---:|
+| <img src="./images/details_and_actions_screen.jpeg" width="300" /> | <img src="./images/enter_pin_screen.jpeg" width="300" /> |
+
+---
+
 ## Tehnologii Utilizate
 
 Aplicația a fost dezvoltată folosind un stack modern de tehnologii mobile:
