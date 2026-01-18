@@ -2,7 +2,7 @@
 
 MyPasswords este o aplicație mobilă modernă și sigură, construită cu **React Native** și **Expo**, care îți permite să stochezi parolele importante direct pe telefonul tău. Aplicația pune accent pe securitate, utilizând stocare criptată și autentificare biometrică nativă (FaceID/TouchID), totul împachetat într-o interfață utilizator futuristă și fluidă.
 
-## 🚀 Funcționalități Principale
+## Funcționalități Principale
 
 *   **Securitate Maximă**: Parolele sunt criptate și salvate folosind `expo-secure-store`, fiind accesibile doar de pe dispozitivul tău.
 *   **Autentificare Biometrică**: Accesul la parole este protejat de securitatea telefonului (FaceID, TouchID sau codul de deblocare).
@@ -12,7 +12,7 @@ MyPasswords este o aplicație mobilă modernă și sigură, construită cu **Rea
 
 ---
 
-## 🛠️ Tehnologii Utilizate
+## Tehnologii Utilizate
 
 Aplicația a fost dezvoltată folosind un stack modern de tehnologii mobile:
 
@@ -35,7 +35,7 @@ Aplicația a fost dezvoltată folosind un stack modern de tehnologii mobile:
 
 ---
 
-## 🏗️ Cum a fost creată aplicația
+## Cum a fost creată aplicația
 
 Procesul de dezvoltare a urmat câțiva pași esențiali:
 
@@ -53,7 +53,7 @@ Procesul de dezvoltare a urmat câțiva pași esențiali:
 
 ---
 
-## 📱 Ghid de Utilizare
+## Ghid de Utilizare
 
 ### 1. Adăugarea unei parole
 *   Apasă butonul flotant **(+)** din colțul dreapta-jos.
