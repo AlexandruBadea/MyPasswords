@@ -7,10 +7,6 @@ const LIST_KEY = 'passwords_list';
 const PIN_KEY = 'user_pin';
 
 export const StorageService = {
-
-
-
-
   async getItems() {
     try {
       const jsonValue = await AsyncStorage.getItem(LIST_KEY);
@@ -26,13 +22,10 @@ export const StorageService = {
       const id = uuidv4();
       const newItem = { id, serviceName, username };
 
-
       const existingItems = await this.getItems();
       const newItems = [...existingItems, newItem];
 
-
       await AsyncStorage.setItem(LIST_KEY, JSON.stringify(newItems));
-
 
       await SecureStore.setItemAsync(`password_${id}`, password);
 

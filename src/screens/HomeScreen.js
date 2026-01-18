@@ -11,7 +11,6 @@ import * as LocalAuthentication from 'expo-local-authentication';
 export default function HomeScreen({ navigation }) {
     const [items, setItems] = useState([]);
 
-    // Check biometric availability on mount
     useEffect(() => {
         (async () => {
             const compatible = await LocalAuthentication.hasHardwareAsync();
