@@ -4,7 +4,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { StorageService } from '../services/StorageService';
 import PinModal from '../components/PinModal';
-// import { Ionicons } from '@expo/vector-icons'; // Assuming Expo, usually available.
 
 export default function HomeScreen({ navigation }) {
     const [items, setItems] = useState([]);
@@ -16,7 +15,6 @@ export default function HomeScreen({ navigation }) {
         const data = await StorageService.getItems();
         setItems(data);
 
-        // Check if PIN is set
         const hasPin = await StorageService.hasPin();
         if (!hasPin) {
             setIsSettingPin(true);
@@ -60,11 +58,9 @@ export default function HomeScreen({ navigation }) {
     };
 
     const handlePinClose = () => {
-        // If setting PIN is mandatory, maybe don't allow close? 
-        // For now, allow close but warn or re-trigger.
         if (isSettingPin) {
             Alert.alert("Requirement", "You must set a PIN to use this app.");
-            return; // Don't close
+            return;
         }
         setPinModalVisible(false);
         setSelectedItem(null);
@@ -116,13 +112,13 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#121212',
     },
     list: {
         padding: 20,
     },
     item: {
-        backgroundColor: 'white',
+        backgroundColor: '#1E1E1E',
         padding: 20,
         borderRadius: 12,
         marginBottom: 15,
@@ -131,23 +127,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.3,
         shadowRadius: 3,
-        elevation: 2,
+        elevation: 3,
+        borderWidth: 1,
+        borderColor: '#333',
     },
     serviceName: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: '#FFFFFF',
     },
     username: {
         fontSize: 14,
-        color: '#666',
+        color: '#B3B3B3',
         marginTop: 5,
     },
     arrow: {
         fontSize: 20,
-        color: '#ccc',
+        color: '#666',
     },
     emptyState: {
         flex: 1,
@@ -156,13 +154,13 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 16,
-        color: '#999',
+        color: '#666',
     },
     fab: {
         position: 'absolute',
         right: 20,
         bottom: 30,
-        backgroundColor: '#007AFF', // Standard Blue
+        backgroundColor: '#4A90E2',
         width: 60,
         height: 60,
         borderRadius: 30,

@@ -23,10 +23,7 @@ export default function PinModal({ visible, onClose, onSuccess, isSettingPin = f
 
         if (isSettingPin) {
             if (!confirmPin) {
-                // Just switched to confirm
                 return;
-                // Logic handled in render mostly, but simplified here:
-                // We actually need a flow for setting pin: Enter -> Confirm -> Save
             }
             if (pin !== confirmPin) {
                 setError('PINs do not match');
@@ -98,11 +95,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 22,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.8)',
     },
     modalView: {
         margin: 20,
-        backgroundColor: 'white',
+        backgroundColor: '#1E1E1E',
         borderRadius: 20,
         padding: 35,
         alignItems: 'center',
@@ -111,20 +108,23 @@ const styles = StyleSheet.create({
             width: 0,
             height: 2,
         },
-        shadowOpacity: 0.25,
+        shadowOpacity: 0.5,
         shadowRadius: 4,
         elevation: 5,
         width: '80%',
+        borderWidth: 1,
+        borderColor: '#333',
     },
     title: {
         fontSize: 20,
         marginBottom: 15,
         fontWeight: 'bold',
+        color: '#FFFFFF',
     },
     input: {
         height: 50,
         width: '100%',
-        borderColor: '#ddd',
+        borderColor: '#333',
         borderWidth: 1,
         borderRadius: 10,
         marginBottom: 15,
@@ -132,6 +132,8 @@ const styles = StyleSheet.create({
         fontSize: 24,
         textAlign: 'center',
         letterSpacing: 5,
+        color: '#FFFFFF',
+        backgroundColor: '#121212',
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -146,10 +148,10 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     submitButton: {
-        backgroundColor: '#2196F3',
+        backgroundColor: '#4A90E2',
     },
     cancelButton: {
-        backgroundColor: '#ff5c5c',
+        backgroundColor: '#CF6679',
     },
     textStyle: {
         color: 'white',
@@ -157,7 +159,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     errorText: {
-        color: 'red',
+        color: '#CF6679',
         marginBottom: 10,
     },
 });

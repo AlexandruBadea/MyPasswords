@@ -20,7 +20,6 @@ export default function AddPasswordScreen({ navigation }) {
             Alert.alert("Success", "Password saved successfully", [
                 { text: "OK", onPress: () => navigation.goBack() }
             ]);
-            // Note: we might want to goBack immediately, but alert confirms.
         } catch (e) {
             Alert.alert("Error", "Failed to save password");
         } finally {
@@ -76,7 +75,7 @@ export default function AddPasswordScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#121212',
     },
     scroll: {
         padding: 20,
@@ -85,29 +84,26 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         marginBottom: 8,
-        color: '#333',
+        color: '#B3B3B3',
     },
     input: {
         height: 50,
-        borderColor: '#ddd',
+        borderColor: '#333',
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 15,
         marginBottom: 20,
         fontSize: 16,
-        backgroundColor: '#fafafa',
+        color: '#FFFFFF',
+        backgroundColor: '#1E1E1E',
     },
     button: {
-        backgroundColor: '#007AFF', // Match Home FAB
+        backgroundColor: '#4A90E2',
         height: 50,
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
-        shadowColor: '#007AFF',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 5,
         elevation: 4,
     },
     disabled: {
